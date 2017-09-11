@@ -243,6 +243,7 @@ module.exports = function(grunt) {
       lib: {
         src: [
           'src/*',
+          '!src/*.ts'
         ],
         options: {
           configFile: 'build/conf/eslint.json',
@@ -270,6 +271,10 @@ module.exports = function(grunt) {
         src: 'README.md',
         dest: 'npm/base/README.md',
       },
+      'twgl.d.ts': {
+        src: 'src/twgl.d.ts',
+        dest: `dist/${verDir}/twgl.d.ts`
+      }
     },
     browserify: {
       example: {
@@ -352,6 +357,7 @@ module.exports = function(grunt) {
     p.scripts = {};
     p.devDependencies = {};
     p.main = `dist/${verDir}/twgl.js`;
+    p.types = `dist/${verDir}/twgl.d.ts`;
     p.files = [ `dist/${verDir}/twgl.js` ];
     fs.writeFileSync("npm/base/package.json", JSON.stringify(p, null, 2), {encoding: "utf8"});
   });

@@ -3,6 +3,7 @@
   "version": "3.6.0",
   "description": "A Tiny WebGL helper library",
   "main": "dist/3.x/twgl-full.js",
+  "types": "dist/3.x/twgl.d.ts",
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha --recursive",
     "pre-push": "grunt eslint",
@@ -28,7 +29,8 @@
   "homepage": "https://github.com/greggman/twgl.js",
   "files": [
     "dist/3.x/twgl-full.js",
-    "dist/3.x/twgl.js"
+    "dist/3.x/twgl.js",
+    "dist/3.x/twgl.d.ts"
   ],
   "devDependencies": {
     "almond": "^0.3.1",
