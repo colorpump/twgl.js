@@ -1,17 +1,25 @@
 declare module "twgl.js" {
 
+    export function addExtensionsToContext(gl: WebGLRenderingContext): void;
     export function bindFramebufferInfo(gl: WebGLRenderingContext, framewbufferInfo?: FramebufferInfo, target?: number): void;
-    export function bindTransformFeedbackInfo(gl: WebGLRenderingContext, transformFeedbackInfo?: ProgramInfo | {[key: string]: AttribInfo}): void;
+    export function bindTransformFeedbackInfo(gl: WebGLRenderingContext, transformFeedbackInfo: ProgramInfo | {[key: string]: TransformFeedbackInfo}, bufferInfo?: BufferInfo | {[key: string]: AttribInfo}): void;
     export function bindUniformBlock(gl: WebGLRenderingContext, programInfo: ProgramInfo | UniformBlockSpec, uniformBlockInfo: UniformBlockInfo): boolean;
     export function createBufferInfoFromArrays(gl: WebGLRenderingContext, arrays: Arrays): BufferInfo;
     export function createFramebufferInfo(gl: WebGLRenderingContext, attachments?: AttachmentOptions[], width?: number, height?: number): FramebufferInfo;
-    export function createProgramInfo(gl: WebGLRenderingContext, shaderSources: string[], attribs?: string[] | ProgramOptions, locations?: number[], errorCallback?: ErrorCallback): ProgramInfo;
+    /**
+     * Creates a ProgramInfo from 2 sources.
+     * @param shaderSources Array of sources for the shaders or ids. The first is assumed to be the vertex shader, the second the fragment shader.
+     * @param opt_attribs Options for the program or an array of attribs names. Locations will be assigned by index if not passed in
+     * @param opt_locations The locations for the attributes. A parallel array to opt_attribs letting you assign locations.
+     * @param opt_errorCallback callback for errors. By default it just prints an error to the console on error. If you want something else pass an callback. It's passed an error message.
+     */
+    export function createProgramInfo(gl: WebGLRenderingContext, shaderSources: string[], opt_attribs?: ProgramOptions | string[], opt_locations?:number[], opt_errorCallback?:()=>any): ProgramInfo;
     export function createTexture(gl: WebGLRenderingContext, options?: TextureOptions, callback?: TextureReadyCallback): WebGLTexture;
-    export function createTextures(gl: WebGLRenderingContext, options?: {[key: string]: TextureOptions}, callback?: TexturesReadyCallback): {[key: string]: WebGLTexture};
+    export function createTextures(gl: WebGLRenderingContext, options: {[key: string]: TextureOptions}, callback?: TexturesReadyCallback): {[key: string]: WebGLTexture};
     export function createTransformFeedback(gl: WebGLRenderingContext, programInfo: ProgramInfo, bufferInfo?: BufferInfo | {[key: string]: AttribInfo}): WebGLObject;
     export function createTransformFeedbackInfo(gl: WebGLRenderingContext, program: WebGLProgram): {[key: string]: TransformFeedbackInfo};
     export function createUniformBlockInfo(gl: WebGLRenderingContext, programInfo: ProgramInfo, blockName: string): UniformBlockInfo;
-    export function drawBufferInfo(gl: WebGLRenderingContext, bufferInfo: BufferInfo | VertexArrayInfo, type?: number, count?: number, offset?: number): void;
+    export function drawBufferInfo(gl: WebGLRenderingContext, bufferInfo: BufferInfo | VertexArrayInfo, type?: GLenum, count?: number, offset?: number): void;
     export function drawObjectList(objects: DrawObject[]): void;
     export function getContext(canvas: HTMLCanvasElement, attribs?: WebGLContextAttributes): WebGLRenderingContext;
     export function getWebGLContext(canvas: HTMLCanvasElement, attribs?: WebGLContextAttributes): WebGLRenderingContext;
@@ -27,7 +35,19 @@ declare module "twgl.js" {
     export function setUniforms(setters: ProgramInfo | {[key: string]: (...params: any[]) => void}, values: {[key: string]: any}): void;
 
     export interface Arrays {
-        [key: string]: number[] | ArrayBuffer 
+        [key: string]: number[] | ArrayBuffer |
+        // like FullArraySpec besides tpye is optional here
+        {
+            data: number | number[] | ArrayBuffer;
+            numComponents?: number;
+            type?: new (...args: any[]) => ArrayBuffer;
+            size?: number;
+            normalize?: boolean;
+            stride?: number;
+            offset?: number;
+            name?: string;
+            attribName?: string;
+        };
     }
 
     export type ArraySpec = number[] | ArrayBuffer | FullArraySpec;
@@ -74,7 +94,7 @@ declare module "twgl.js" {
         attribPrefix?: string;
         textureColor?: number[];
         crossOrigin?: string;
-        enableVertexArrayObjects?: boolean; 
+        addExtensionsToContext?: boolean;
     }
 
     export interface DrawObject {
@@ -127,6 +147,7 @@ declare module "twgl.js" {
 
     export interface TextureOptions {
         target?: number;
+        level?: number;
         width?: number;
         height?: number;
         depth?: number;
@@ -215,6 +236,8 @@ declare module "twgl.js" {
     export function createBufferInfoFromArrays(gl: WebGLRenderingContext, arrays: Arrays): BufferInfo;
     export function createBuffersFromArrays(gl: WebGLRenderingContext, arrays: Arrays): {[name: string]: WebGLBuffer};
     export function setAttribInfoBufferFromArray(gl: WebGLRenderingContext, attribInfo: AttribInfo, array: ArraySpec, offset?: number): void;
+    /** added */
+    export function setAttrbutePrefix(prefix: string): void;
 
     // draw module
     export module draw {
@@ -329,24 +352,120 @@ declare module "twgl.js" {
         export function reorientVertices(arrays: {[key: string]: number[] | TypedArray}, matrix: Mat4): {[key: string]: number[] | TypedArray};
     }
 
-    // export module programs {
-    //     export function bindUniformBlock(gl: WebGLRenderingContext, programInfo: ProgramInfo | UniformBlockSpec, uniformBlockInfo: UniformBlockSpec): boolean;
-    //     export function createAttributeSetters(program: WebGLProgram): {[key:string]: (attr: any) => void};
-    //     export function createProgram(shaders: WebGLShader[] | string[], opt_attribs?: ProgramOptions | string[], opt_locations?: number[], opt_errorCallback?: ErrorCallback): WebGLProgram;
-    //     export function createProgramFromScripts(gl: WebGLRenderingContext, shaderScriptIds: string[], opt_attribs?: string[], opt_locations?: number[], opt_errorCallback?: ErrorCallback): WebGLProgram;
-    //     export function createProgramFromSources(gl: WebGLRenderingContext, shaderSources, opt_attribsopt, opt_locationsopt, opt_errorCallback): WebGLProgram;
-    //     export function createProgramInfo(gl: WebGLRenderingContext, shaderSources, opt_attribsopt, opt_locationsopt, opt_errorCallback): ProgramInfo;
-    //     export function createProgramInfoFromProgram(gl: WebGLRenderingContext, program): ProgramInfo;
-    //     export function createUniformBlockInfo(gl: WebGLRenderingContext, programInfo, blockName): UniformBlockInfo;
-    //     export function createUniformBlockInfoFromProgram(gl: WebGLRenderingContext, program, blockName): UniformBlockInfo;
-    //     export function createUniformBlockSpecFromProgram(gl: WebGLRenderingContext, program): UniformBlockSpec;
-    //     export function createUniformSetters(program): {[key:string]: (attr: any) => void};
-    //     /** @deprecated */
-    //     export function setAttributes(setters, buffers);
-    //     export function setBlockUniforms(uniformBlockInfo, values)
-    //     export function setBuffersAndAttributes(gl: WebGLRenderingContext, setters, buffers)
-    //     export function setUniformBlock(gl: WebGLRenderingContext, programInfo, uniformBlockInfo)
-    //     export function setUniforms(setters, values)
-    //  }
+    export module programs {
+        export function bindUniformBlock(gl: WebGLRenderingContext, programInfo: ProgramInfo | UniformBlockSpec, uniformBlockInfo: UniformBlockSpec): boolean;
+        export function createAttributeSetters(program: WebGLProgram): {[key:string]: (attr: any) => void};
+        export function createProgram(shaders: WebGLShader[] | string[], opt_attribs?: ProgramOptions | string[], opt_locations?: number[], opt_errorCallback?: ErrorCallback): WebGLProgram;
+        export function createProgramFromScripts(gl: WebGLRenderingContext, shaderScriptIds: string[], opt_attribs?: string[], opt_locations?: number[], opt_errorCallback?: ErrorCallback): WebGLProgram;
+        export function createProgramFromSources(gl: WebGLRenderingContext, shaderSources, opt_attribsopt, opt_locationsopt, opt_errorCallback): WebGLProgram;
+        /**
+         * Creates a ProgramInfo from 2 sources.
+         * @param shaderSources Array of sources for the shaders or ids. The first is assumed to be the vertex shader, the second the fragment shader.
+         * @param opt_attribs Options for the program or an array of attribs names. Locations will be assigned by index if not passed in
+         * @param opt_locations The locations for the attributes. A parallel array to opt_attribs letting you assign locations.
+         * @param opt_errorCallback callback for errors. By default it just prints an error to the console on error. If you want something else pass an callback. It's passed an error message.
+         */
+        export function createProgramInfo(gl: WebGLRenderingContext, shaderSources: string[], opt_attribs?: ProgramOptions | string[], opt_locations?:number[], opt_errorCallback?:()=>any): ProgramInfo;
+        export function createProgramInfoFromProgram(gl: WebGLRenderingContext, program): ProgramInfo;
+        export function createUniformBlockInfo(gl: WebGLRenderingContext, programInfo, blockName): UniformBlockInfo;
+        export function createUniformBlockInfoFromProgram(gl: WebGLRenderingContext, program, blockName): UniformBlockInfo;
+        export function createUniformBlockSpecFromProgram(gl: WebGLRenderingContext, program): UniformBlockSpec;
+        export function createUniformSetters(program): {[key:string]: (attr: any) => void};
+        /** @deprecated ... use module:twgl.setBuffersAndAttributes*/
+        export function setAttributes(setters, buffers);
+        export function setBlockUniforms(uniformBlockInfo, values)
+        export function setBuffersAndAttributes(gl: WebGLRenderingContext, setters, buffers)
+        export function setUniformBlock(gl: WebGLRenderingContext, programInfo, uniformBlockInfo)
+        export function setUniforms(setters, values)
+    }
 
+    export module textures {
+        /** todo */
+        export function createTexture (...any): any;
+        /** todo */
+        export function createTextures (...any): any;
+        /** todo */
+        export function getBytesPerElementForInternalFormat (...any): any;
+        /** todo */
+        export function getNumComponentsForFormat (...any): any;
+        /** todo */
+        export function loadCubemapFromUrls (...any): any;
+        /** todo */
+        export function loadSlicesFromUrls (...any): any;
+        /** todo */
+        export function loadTextureFromUrl (...any): any;
+        /** todo */
+        export function resizeTexture (...any): any;
+        /** todo */
+        export function setDefaultTextureColor (...any): any;
+        /** todo */
+        export function setEmptyTexture (...any): any;
+        /** todo */
+        export function setSamplerParameters (...any): any;
+        /** todo */
+        export function setTextureFilteringForSize (...any): any;
+        /** todo */
+        export function setTextureFromArray (...any): any;
+        /** todo */
+        export function setTextureFromElement (...any): any;
+        /** todo */
+        export function setTextureParameters (...any): any;
+        /** todo */
+        export function setTextureTo1PixelColor  (...any): any;
+    }
+
+    export module typedArray {
+        /** todo */
+        export function getGLTypeForTypedArray (...any): any;
+        /** todo */
+        export function getGLTypeForTypedArrayType (...any): any;
+        /** todo */
+        export function getTypedArrayTypeForGLType (...any): any;
+    }
+
+    export module v3 {
+        /** todo */
+        export function add (...any): any;
+        /** todo */
+        export function copy (...any): any;
+        /** todo */
+        export function create (...any): any;
+        /** todo */
+        export function cross (...any): any;
+        /** todo */
+        export function distance (...any): any;
+        /** todo */
+        export function distanceSq (...any): any;
+        /** todo */
+        export function divide (...any): any;
+        /** todo */
+        export function divScalar (...any): any;
+        /** todo */
+        export function dot (...any): any;
+        /** todo */
+        export function length (...any): any;
+        /** todo */
+        export function lengthSq (...any): any;
+        /** todo */
+        export function lerp (...any): any;
+        /** todo */
+        export function mulScalar (...any): any;
+        /** todo */
+        export function multiply (...any): any;
+        /** todo */
+        export function negate (...any): any;
+        /** todo */
+        export function normalize (...any): any;
+        /** todo */
+        export function subtract (...any): any;
+    }
+
+    export module v3 {
+        /** todo */
+        export function createVAOAndSetAttributes (...any): any;
+        /** todo */
+        export function createVAOFromBufferInfo (...any): any;
+        /** todo */
+        export function createVertexArrayInfo (...any): any;
+    }
 }
