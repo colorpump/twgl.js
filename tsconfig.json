@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "baseUrl": "./",
+        "module": "amd",
+        "paths": {
+            "twgl.js": ["dist/3.x/twgl.js"]
+        },
+        "types": [ "node", "mocha", "chai" ]
+    },
+    "files": [
+        "dist/3.x/twgl.d.ts"
+    ]
+}

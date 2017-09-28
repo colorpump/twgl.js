@@ -5,7 +5,9 @@
   "main": "dist/3.x/twgl-full.js",
   "types": "dist/3.x/twgl.d.ts",
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha --recursive",
+    "test": "mocha --recursive test/src/js",
+    "test-ts": "mocha --require ts-node/register --require jsdom-global/register test/src/ts/twgl.d.ts-test.ts",
+    "test-ts2": "tsc ./test/src/ts/twgl.d.ts-test.ts --outFile test/src/ts/test.js --module amd --allowJs && lite-server --baseDir  test/src/ts/",
     "pre-push": "grunt eslint",
     "build": "grunt build",
     "bumpminor": "grunt bumpminor",
@@ -33,6 +35,7 @@
     "dist/3.x/twgl.d.ts"
   ],
   "devDependencies": {
+    "@types/mocha": "^2.2.43",
     "almond": "^0.3.1",
     "babel-cli": "^6.18.0",
     "babel-loader": "^6.2.7",
@@ -53,6 +56,8 @@
     "grunt-eslint": "^18.0.0",
     "grunt-jsdoc": "^1.1.0",
     "grunt-webpack-without-server": "^1.0.8",
+    "jsdom": "^11.2.0",
+    "jsdom-global": "^3.0.2",
     "load-grunt-tasks": "^3.4.1",
     "marked": "^0.3.3",
     "minami": "^1.1.1",
@@ -60,6 +65,9 @@
     "requirejs": "^2.1.22",
     "semver": "^4.3.4",
     "should": "^8.1.1",
+    "ts-node": "^3.3.0",
+    "typescript": "^2.5.2",
+    "typescript-definition-tester": "0.0.5",
     "webpack": "^1.13.1",
     "webpack-load-plugins": "^0.1.2"
   },
